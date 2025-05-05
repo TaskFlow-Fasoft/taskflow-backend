@@ -1,5 +1,6 @@
 from typing import Optional, List
 
+from fastapi import HTTPException
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -26,3 +27,30 @@ class BoardRepository(IBoardRepository):
             return [Board(**board) for board in boards]
         else:
             return None
+
+    async def delete_board(self, board_id: int, user_id: int):
+        check_existency = await self.connection.execute(
+            statement=text(
+                "SELECT * FROM BOARDS WHERE ID = :board_id AND USER_ID = :user_id"
+            ),
+            params={
+                "board_id": board_id,
+                "user_id": user_id
+            }
+        )
+
+        if not check_existency.scalar():
+            raise HTTPException(
+                status_code=404,
+                detail=f"Quadro não encontrado."
+            )
+        else:
+            await self.connection.execute(
+                statement=text("DELETE FROM BOARDS WHERE ID = :board_id AND USER_ID = :user_id"),
+                params={
+                    "board_id": board_id,
+                    "user_id": user_id
+                }
+            )
+
+            await self.connection.commit()

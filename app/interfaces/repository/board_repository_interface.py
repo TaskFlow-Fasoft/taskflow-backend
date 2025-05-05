@@ -9,3 +9,7 @@ class IBoardRepository(ABC):
     @abstractmethod
     async def get_user_boards(self, user_id: int) -> Optional[List[Board]]:
         raise NotImplementedError()
+
+    @abstractmethod
+    async def delete_board(self, board_id: int, user_id: int):
+        raise NotImplementedError()

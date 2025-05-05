@@ -13,3 +13,9 @@ class Board(BaseModel):
 
 class GetBoardsResponse(BaseModel):
     boards: List[Board]
+
+
+class BoardDeletionResponse(BaseModel):
+    success: bool
+    board_id: int
+    message: str
