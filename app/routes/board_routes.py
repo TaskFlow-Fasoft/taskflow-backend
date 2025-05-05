@@ -30,7 +30,7 @@ async def delete_board(
 
 
 @boards.post("", response_model=BoardCreatedResponse)
-async def delete_board(
+async def create_board(
         board_request: CreateBoardRequest,
         user_data: UserJWTData = Depends(decode_access_token),
         board_services: IBoardServices = Depends(get_board_services)
