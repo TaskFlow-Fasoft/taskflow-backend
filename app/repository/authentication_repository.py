@@ -1,16 +1,19 @@
+from datetime import datetime, timedelta
+
 from pydantic import EmailStr
 from pytz import timezone
-from fastapi import Depends, HTTPException
+from fastapi import Depends, HTTPException, status
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_session
-from app.interfaces.repository.register_repository_interface import IRegisterRepository
-from app.schemas.requests.register_requests import UserRegistrationRequest
-from app.schemas.responses.register_responses import UserRegistrationResponse
+from app.core.jwt_auth import create_access_token
+from app.interfaces.repository.authentication_repository_interface import IAuthenticationRepository
+from app.schemas.requests.authentication_requests import UserRegistrationRequest, UserLoginRequest
+from app.schemas.responses.authentication_responses import UserRegistrationResponse, UserLoginResponse
 
 
-class RegisterRepository(IRegisterRepository):
+class AuthenticationRepository(IAuthenticationRepository):
 
     def __init__(self, connection: AsyncSession = Depends(get_session)):
         self.connection = connection
@@ -66,6 +69,34 @@ class RegisterRepository(IRegisterRepository):
             )
         else:
             raise HTTPException(
-                status_code=400,
+                status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Não foi possível realizar o cadastro. Tente novamente mais tarde."
+            )
+
+    async def verify_user_credentials(self, login_data: UserLoginRequest) -> UserLoginResponse:
+        result = await self.connection.execute(
+            text(
+                """
+                SELECT 
+                    EMAIL,
+                    PASSWORD
+                FROM USERS
+                WHERE EMAIL = :email
+                AND PASSWORD = :password
+                """
+            ),
+            params={"email": login_data.email, "password": login_data.password}
+        )
+
+        credentials = result.mappings().first()
+
+        if credentials:
+            return UserLoginResponse(
+                access_token=create_access_token(credentials.get("email")),
+                expires_at=datetime.now(tz=timezone("America/Sao_Paulo")) + timedelta(days=1)
+            )
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Falha ao autenticar. E-mail ou senha incorretos."
             )
