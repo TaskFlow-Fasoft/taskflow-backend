@@ -19,7 +19,7 @@ async def register_user(
     return await authentication_services.user_register(registration_data)
 
 
-@authentication.post("/login", response_model=UserRegistrationResponse)
+@authentication.post("/login", response_model=UserLoginResponse)
 async def user_login(
         login_data: UserLoginRequest,
         authentication_services: IAuthenticationServices = Depends(get_auth_services)
