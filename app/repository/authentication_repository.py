@@ -56,15 +56,13 @@ class AuthenticationRepository(IAuthenticationRepository):
         user_info = result.mappings().first()
 
         if user_info:
-            current_time = user_info.get("created_at").astimezone(timezone("America/Sao_Paulo"))
-
             await self.connection.commit()
 
             return UserRegistrationResponse(
                 id=user_info.get("id"),
                 username=registration_data.username,
                 email=registration_data.email,
-                created_at=current_time
+                created_at=user_info.get("created_at")
             )
         else:
             raise HTTPException(
