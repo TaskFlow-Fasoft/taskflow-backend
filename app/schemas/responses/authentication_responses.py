@@ -8,3 +8,8 @@ class UserRegistrationResponse(BaseModel):
     username: str
     email: EmailStr
     created_at: datetime
+
+
+class UserLoginResponse(BaseModel):
+    access_token: str
+    expires_at: datetime
