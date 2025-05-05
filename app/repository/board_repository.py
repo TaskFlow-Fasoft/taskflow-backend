@@ -1,6 +1,6 @@
 from typing import Optional, List
 
-from fastapi import HTTPException
+from fastapi import HTTPException, status
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -41,7 +41,7 @@ class BoardRepository(IBoardRepository):
 
         if not check_existency.scalar():
             raise HTTPException(
-                status_code=404,
+                status_code=status.HTTP_400_BAD_REQUEST,
                 detail=f"Quadro não encontrado."
             )
         else:
@@ -54,3 +54,37 @@ class BoardRepository(IBoardRepository):
             )
 
             await self.connection.commit()
+
+    async def create_board(self, title: str, user_id: int) -> dict:
+        result = await self.connection.execute(
+            statement=text(
+                """
+                INSERT INTO BOARDS (
+                    TITLE,
+                    USER_ID,
+                    CREATED_AT
+                )
+                VALUES (
+                    :title,
+                    :user_id,
+                    CURRENT_TIMESTAMP AT TIME ZONE 'America/Sao_Paulo'
+                ) RETURNING ID, CREATED_AT
+                """
+            ),
+            params={
+                "title": title,
+                "user_id": user_id
+            }
+        )
+
+        board_info = result.mappings().first()
+
+        if board_info:
+            await self.connection.commit()
+
+            return dict(board_info)
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Ocorreu um erro ao criar o quadro. Tente novamente mais tarde."
+            )

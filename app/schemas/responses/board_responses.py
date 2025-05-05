@@ -19,3 +19,9 @@ class BoardDeletionResponse(BaseModel):
     success: bool
     board_id: int
     message: str
+
+
+class BoardCreatedResponse(BaseModel):
+    board_id: int
+    message: str
+    created_at: datetime

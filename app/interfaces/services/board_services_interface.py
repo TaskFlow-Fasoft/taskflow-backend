@@ -1,7 +1,8 @@
 from abc import ABC, abstractmethod
 
 from app.core.jwt_auth import UserJWTData
-from app.schemas.responses.board_responses import GetBoardsResponse, BoardDeletionResponse
+from app.schemas.requests.board_requests import CreateBoardRequest
+from app.schemas.responses.board_responses import GetBoardsResponse, BoardDeletionResponse, BoardCreatedResponse
 
 
 class IBoardServices(ABC):
@@ -12,4 +13,8 @@ class IBoardServices(ABC):
 
     @abstractmethod
     async def delete_board(self, board_id: int, user_data: UserJWTData) -> BoardDeletionResponse:
+        raise NotImplementedError()
+
+    @abstractmethod
+    async def create_board(self, board_request: CreateBoardRequest, user_data: UserJWTData) -> BoardCreatedResponse:
         raise NotImplementedError()

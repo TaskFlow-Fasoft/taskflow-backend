@@ -13,3 +13,7 @@ class IBoardRepository(ABC):
     @abstractmethod
     async def delete_board(self, board_id: int, user_id: int):
         raise NotImplementedError()
+
+    @abstractmethod
+    async def create_board(self, title: str, user_id: int) -> dict:
+        raise NotImplementedError()
