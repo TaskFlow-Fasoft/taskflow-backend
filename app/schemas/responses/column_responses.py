@@ -8,3 +8,9 @@ class CreateColumnResponse(BaseModel):
     title: str
     board_id: int
     created_at: datetime
+
+
+class DeleteColumnResponse(BaseModel):
+    success: bool
+    column_id: int
+    message: str

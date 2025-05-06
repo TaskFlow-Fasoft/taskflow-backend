@@ -4,8 +4,8 @@ from app.interfaces.repository.board_repository_interface import IBoardRepositor
 from app.interfaces.repository.column_repository_interface import IColumnRepository
 from app.interfaces.services.column_services_interface import IColumnServices
 from app.schemas.requests.authentication_requests import UserJWTData
-from app.schemas.requests.column_requests import CreateColumnRequest
-from app.schemas.responses.column_responses import CreateColumnResponse
+from app.schemas.requests.column_requests import CreateColumnRequest, DeleteColumnRequest
+from app.schemas.responses.column_responses import CreateColumnResponse, DeleteColumnResponse
 
 
 class ColumnServices(IColumnServices):
@@ -30,4 +30,21 @@ class ColumnServices(IColumnServices):
             title=column_request.title,
             board_id=column_request.board_id,
             created_at=column_info.get("created_at")
+        )
+
+    async def delete_column(self, column_request: DeleteColumnRequest, user_data: UserJWTData) -> DeleteColumnResponse:
+        board_exists = await self.board_repository.check_board_existency(column_request.board_id, user_data.user_id)
+
+        if not board_exists:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Quadro informado não encontrado."
+            )
+
+        await self.column_repository.delete_column(column_request)
+
+        return DeleteColumnResponse(
+            success=True,
+            column_id=column_request.id,
+            message="Coluna deletada com sucesso."
         )
