@@ -25,3 +25,10 @@ class BoardCreatedResponse(BaseModel):
     board_id: int
     message: str
     created_at: datetime
+
+
+class BoardUpdateResponse(BaseModel):
+    success: bool
+    board_id: int
+    message: str
+    fields_updated: List
