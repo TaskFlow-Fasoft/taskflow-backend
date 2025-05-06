@@ -5,6 +5,7 @@ load_dotenv()
 from fastapi import FastAPI
 
 from app.routes.authentication_routes import authentication
+from app.routes.board_routes import boards
 
 app = FastAPI(
     title="API TaskFlow",
@@ -12,6 +13,7 @@ app = FastAPI(
 )
 
 app.include_router(authentication)
+app.include_router(boards)
 
 if __name__ == "__main__":
     import uvicorn

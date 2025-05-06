@@ -2,11 +2,10 @@ from datetime import datetime, timedelta
 
 from pydantic import EmailStr
 from pytz import timezone
-from fastapi import Depends, HTTPException, status
+from fastapi import HTTPException, status
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.database import get_session
 from app.core.jwt_auth import create_access_token
 from app.interfaces.repository.authentication_repository_interface import IAuthenticationRepository
 from app.schemas.requests.authentication_requests import UserRegistrationRequest, UserLoginRequest
@@ -15,7 +14,7 @@ from app.schemas.responses.authentication_responses import UserRegistrationRespo
 
 class AuthenticationRepository(IAuthenticationRepository):
 
-    def __init__(self, connection: AsyncSession = Depends(get_session)):
+    def __init__(self, connection: AsyncSession):
         self.connection = connection
 
     async def email_already_registered(self, email: EmailStr) -> bool:
@@ -57,15 +56,13 @@ class AuthenticationRepository(IAuthenticationRepository):
         user_info = result.mappings().first()
 
         if user_info:
-            current_time = user_info.get("created_at").astimezone(timezone("America/Sao_Paulo"))
-
             await self.connection.commit()
 
             return UserRegistrationResponse(
                 id=user_info.get("id"),
                 username=registration_data.username,
                 email=registration_data.email,
-                created_at=current_time
+                created_at=user_info.get("created_at")
             )
         else:
             raise HTTPException(
@@ -78,8 +75,7 @@ class AuthenticationRepository(IAuthenticationRepository):
             text(
                 """
                 SELECT 
-                    EMAIL,
-                    PASSWORD
+                    ID
                 FROM USERS
                 WHERE EMAIL = :email
                 AND PASSWORD = :password
@@ -91,8 +87,13 @@ class AuthenticationRepository(IAuthenticationRepository):
         credentials = result.mappings().first()
 
         if credentials:
+            user_data = {
+                "email": login_data.email,
+                "user_id": credentials.get("id")
+            }
+
             return UserLoginResponse(
-                access_token=create_access_token(credentials.get("email")),
+                access_token=create_access_token(user_data),
                 expires_at=datetime.now(tz=timezone("America/Sao_Paulo")) + timedelta(days=1)
             )
         else:
