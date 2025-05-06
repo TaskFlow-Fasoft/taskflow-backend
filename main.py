@@ -6,6 +6,7 @@ from fastapi import FastAPI
 
 from app.routes.authentication_routes import authentication
 from app.routes.board_routes import boards
+from app.routes.column_routes import column
 
 app = FastAPI(
     title="API TaskFlow",
@@ -14,6 +15,7 @@ app = FastAPI(
 
 app.include_router(authentication)
 app.include_router(boards)
+app.include_router(column)
 
 if __name__ == "__main__":
     import uvicorn

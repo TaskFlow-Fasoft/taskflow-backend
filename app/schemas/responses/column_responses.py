@@ -1,0 +1,10 @@
+from datetime import datetime
+
+from pydantic import BaseModel
+
+
+class CreateColumnResponse(BaseModel):
+    id: int
+    title: str
+    board_id: int
+    created_at: datetime

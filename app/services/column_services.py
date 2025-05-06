@@ -1,0 +1,33 @@
+from fastapi import HTTPException, status
+
+from app.interfaces.repository.board_repository_interface import IBoardRepository
+from app.interfaces.repository.column_repository_interface import IColumnRepository
+from app.interfaces.services.column_services_interface import IColumnServices
+from app.schemas.requests.authentication_requests import UserJWTData
+from app.schemas.requests.column_requests import CreateColumnRequest
+from app.schemas.responses.column_responses import CreateColumnResponse
+
+
+class ColumnServices(IColumnServices):
+
+    def __init__(self, column_repository: IColumnRepository, board_repository: IBoardRepository):
+        self.column_repository = column_repository
+        self.board_repository = board_repository
+
+    async def create_column(self, column_request: CreateColumnRequest, user_data: UserJWTData) -> CreateColumnResponse:
+        board_exists = await self.board_repository.check_board_existency(column_request.board_id, user_data.user_id)
+
+        if not board_exists:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Quadro informado não encontrado."
+            )
+
+        column_info = await self.column_repository.create_column(column_request)
+
+        return CreateColumnResponse(
+            id=column_info.get("id"),
+            title=column_request.title,
+            board_id=column_request.board_id,
+            created_at=column_info.get("created_at")
+        )
