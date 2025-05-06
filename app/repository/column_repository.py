@@ -5,7 +5,7 @@ from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.interfaces.repository.column_repository_interface import  IColumnRepository
-from app.schemas.requests.column_requests import CreateColumnRequest, DeleteColumnRequest
+from app.schemas.requests.column_requests import CreateColumnRequest, DeleteColumnRequest, UpdateColumnRequest
 from app.schemas.responses.column_responses import Column
 
 
@@ -105,3 +105,42 @@ class ColumnRepository(IColumnRepository):
             )
 
         return [Column(**column) for column in columns]
+
+    async def update_column(self, board_id: int, column_request: UpdateColumnRequest) -> dict:
+        check_existency = await self.check_column_existency(column_request.column_id, board_id)
+
+        if not check_existency:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Coluna não encontrada."
+            )
+        else:
+            result = await self.connection.execute(
+                statement=text(
+                    """
+                    UPDATE
+                        BOARD_COLUMNS
+                    SET TITLE = :title
+                    WHERE ID = :id
+                    AND BOARD_ID = :board_id
+                    RETURNING TITLE
+                    """
+                ),
+                params={
+                    "title": column_request.title,
+                    "id": column_request.column_id,
+                    "board_id": board_id
+                }
+            )
+
+            update_info = result.mappings().first()
+
+            if update_info:
+                await self.connection.commit()
+
+                return dict(update_info)
+            else:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Ocorreu um erro ao atualizar a coluna."
+                )

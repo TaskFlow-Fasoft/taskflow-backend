@@ -26,3 +26,10 @@ class Column(BaseModel):
 
 class GetColumnsResponse(BaseModel):
     columns: List[Column]
+
+
+class UpdateColumnResponse(BaseModel):
+    success: bool
+    id: int
+    message: str
+    fields_updated: List

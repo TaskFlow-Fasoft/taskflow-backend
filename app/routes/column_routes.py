@@ -4,8 +4,13 @@ from app.core.jwt_auth import decode_access_token
 from app.dependencies.column import get_column_services
 from app.interfaces.services.column_services_interface import IColumnServices
 from app.schemas.requests.authentication_requests import UserJWTData
-from app.schemas.requests.column_requests import CreateColumnRequest, DeleteColumnRequest
-from app.schemas.responses.column_responses import CreateColumnResponse, DeleteColumnResponse, GetColumnsResponse
+from app.schemas.requests.column_requests import CreateColumnRequest, DeleteColumnRequest, UpdateColumnRequest
+from app.schemas.responses.column_responses import (
+    CreateColumnResponse,
+    DeleteColumnResponse,
+    GetColumnsResponse,
+    UpdateColumnResponse
+)
 
 column = APIRouter(
     prefix="/column",
@@ -38,3 +43,13 @@ async def get_board_columns(
         column_services: IColumnServices = Depends(get_column_services)
 ) -> GetColumnsResponse:
     return await column_services.get_board_columns(board_id, user_data)
+
+
+@column.put("/{board_id}", response_model=UpdateColumnResponse)
+async def update_column(
+        column_request: UpdateColumnRequest,
+        board_id: int = Path(title="ID do quadro.", description="ID do quadro cujas colunas serão atualizadas."),
+        user_data: UserJWTData = Depends(decode_access_token),
+        column_services: IColumnServices = Depends(get_column_services)
+) -> UpdateColumnResponse:
+    return await column_services.update_column(board_id, column_request, user_data)

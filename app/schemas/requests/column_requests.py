@@ -9,3 +9,8 @@ class CreateColumnRequest(BaseModel):
 class DeleteColumnRequest(BaseModel):
     id: int
     board_id: int
+
+
+class UpdateColumnRequest(BaseModel):
+    column_id: int
+    title: str
