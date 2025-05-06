@@ -37,7 +37,13 @@ class BoardRepository(IBoardRepository):
 
         boards = result.mappings().all()
 
-        return [Board(**board) for board in boards] if boards else None
+        if not boards:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Quadros não encontrados para o user_id informado."
+            )
+
+        return [Board(**board) for board in boards]
 
     async def delete_board(self, board_id: int, user_id: int):
         exists = await self.check_board_existency(board_id, user_id)
