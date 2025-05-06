@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
+from typing import List
 
 from app.schemas.requests.column_requests import CreateColumnRequest, DeleteColumnRequest
+from app.schemas.responses.column_responses import Column
 
 
 class IColumnRepository(ABC):
@@ -15,4 +17,8 @@ class IColumnRepository(ABC):
 
     @abstractmethod
     async def delete_column(self, column_request: DeleteColumnRequest):
+        raise NotImplementedError()
+
+    @abstractmethod
+    async def get_board_columns(self, board_id: int) -> List[Column]:
         raise NotImplementedError()

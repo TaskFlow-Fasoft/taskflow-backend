@@ -20,7 +20,7 @@ class BoardServices(IBoardServices):
     async def get_boards(self, user_data: UserJWTData) -> Optional[GetBoardsResponse]:
         boards = await self.board_repository.get_user_boards(user_data.user_id)
 
-        return GetBoardsResponse(boards=boards) if boards else None
+        return GetBoardsResponse(boards=boards)
 
     async def delete_board(self, board_id: int, user_data: UserJWTData) -> BoardDeletionResponse:
         await self.board_repository.delete_board(board_id, user_data.user_id)

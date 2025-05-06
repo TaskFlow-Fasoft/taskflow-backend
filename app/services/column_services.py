@@ -5,7 +5,7 @@ from app.interfaces.repository.column_repository_interface import IColumnReposit
 from app.interfaces.services.column_services_interface import IColumnServices
 from app.schemas.requests.authentication_requests import UserJWTData
 from app.schemas.requests.column_requests import CreateColumnRequest, DeleteColumnRequest
-from app.schemas.responses.column_responses import CreateColumnResponse, DeleteColumnResponse
+from app.schemas.responses.column_responses import CreateColumnResponse, DeleteColumnResponse, GetColumnsResponse
 
 
 class ColumnServices(IColumnServices):
@@ -48,3 +48,16 @@ class ColumnServices(IColumnServices):
             column_id=column_request.id,
             message="Coluna deletada com sucesso."
         )
+
+    async def get_board_columns(self, board_id: int, user_data: UserJWTData) -> GetColumnsResponse:
+        board_exists = await self.board_repository.check_board_existency(board_id, user_data.user_id)
+
+        if not board_exists:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Quadro informado não encontrado."
+            )
+
+        columns = await self.column_repository.get_board_columns(board_id)
+
+        return GetColumnsResponse(columns=columns)

@@ -1,9 +1,12 @@
+from typing import List
+
 from fastapi import HTTPException, status
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.interfaces.repository.column_repository_interface import  IColumnRepository
 from app.schemas.requests.column_requests import CreateColumnRequest, DeleteColumnRequest
+from app.schemas.responses.column_responses import Column
 
 
 class ColumnRepository(IColumnRepository):
@@ -84,3 +87,21 @@ class ColumnRepository(IColumnRepository):
                     status_code=status.HTTP_400_BAD_REQUEST,
                     detail="Ocorreu um erro ao deletar o coluna."
                 )
+
+    async def get_board_columns(self, board_id: int) -> List[Column]:
+        result = await self.connection.execute(
+            statement=text(
+                "SELECT * FROM BOARD_COLUMNS WHERE BOARD_ID = :board_id"
+            ),
+            params={"board_id": board_id}
+        )
+
+        columns = result.mappings().all()
+
+        if not columns:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Não há colunas cadastradas para o board_id informado."
+            )
+
+        return [Column(**column) for column in columns]
