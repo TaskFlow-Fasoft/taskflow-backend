@@ -1,3 +1,5 @@
+from typing import List
+
 from fastapi import HTTPException, status
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -49,4 +51,22 @@ class TasksRepository(ITasksRepository):
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Ocorreu um erro ao criar a task."
+            )
+
+    async def get_column_tasks(self, column_id: int) -> List:
+        result = await self.connection.execute(
+            statement=text(
+                "SELECT * FROM TASKS WHERE COLUMN_ID = :column_id"
+            ),
+            params={"column_id": column_id}
+        )
+
+        tasks = result.mappings().all()
+
+        if tasks:
+            return [dict(**task) for task in tasks]
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Ocorreu um erro ao consultar as tasks."
             )

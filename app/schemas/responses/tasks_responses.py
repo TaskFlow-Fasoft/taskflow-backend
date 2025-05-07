@@ -1,12 +1,26 @@
 from datetime import datetime, date
+from typing import List
 
 from pydantic import BaseModel
 
 
-class CreateTaskResponse(BaseModel):
+class Task(BaseModel):
     id: int
     title: str
     description: str
     column_id: int
     due_date: date
     created_at: datetime
+
+
+class CreateTaskResponse(BaseModel):
+    id: int
+    title: str
+    description: str
+    due_date: date
+    created_at: datetime
+    message: str
+
+
+class GetColumnTasksResponse(BaseModel):
+    tasks: List[Task]

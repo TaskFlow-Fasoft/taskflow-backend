@@ -6,7 +6,7 @@ from app.interfaces.repository.tasks_repository_interface import ITasksRepositor
 from app.interfaces.services.tasks_services_interface import ITasksServices
 from app.schemas.requests.authentication_requests import UserJWTData
 from app.schemas.requests.tasks_requests import CreateTaskRequest
-from app.schemas.responses.tasks_responses import CreateTaskResponse
+from app.schemas.responses.tasks_responses import CreateTaskResponse, GetColumnTasksResponse
 
 
 class TasksServices(ITasksServices):
@@ -47,7 +47,28 @@ class TasksServices(ITasksServices):
             id=task.get("id"),
             title=tasks_request.title,
             description=tasks_request.description,
-            column_id=tasks_request.column_id,
             due_date=tasks_request.due_date,
-            created_at=task.get("created_at")
+            created_at=task.get("created_at"),
+            message="Tarefa criada com sucesso."
         )
+
+    async def get_column_tasks(self, column_id: int, board_id: int, user_data: UserJWTData) -> GetColumnTasksResponse:
+        board_exists = await self.board_repository.check_board_existency(board_id, user_data.user_id)
+
+        if not board_exists:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Quadro informado não encontrado."
+            )
+
+        column_exists = await self.column_repository.check_column_existency(column_id, board_id)
+
+        if not column_exists:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Coluna não encontrada."
+            )
+
+        tasks = await self.tasks_repository.get_column_tasks(column_id)
+
+        return GetColumnTasksResponse(tasks=tasks)
