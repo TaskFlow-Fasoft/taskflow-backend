@@ -4,8 +4,8 @@ from app.core.jwt_auth import decode_access_token
 from app.dependencies.tasks import get_tasks_services
 from app.interfaces.services.tasks_services_interface import ITasksServices
 from app.schemas.requests.authentication_requests import UserJWTData
-from app.schemas.requests.tasks_requests import CreateTaskRequest
-from app.schemas.responses.tasks_responses import CreateTaskResponse, GetColumnTasksResponse
+from app.schemas.requests.tasks_requests import CreateTaskRequest, DeleteTaskRequest
+from app.schemas.responses.tasks_responses import CreateTaskResponse, GetColumnTasksResponse, DeleteTaskResponse
 
 tasks = APIRouter(
     prefix="/tasks",
@@ -22,7 +22,7 @@ async def create_task(
     return await tasks_services.create_task(tasks_request, user_data)
 
 
-@tasks.get("/{column_id]/{board_id}", response_model=GetColumnTasksResponse)
+@tasks.get("", response_model=GetColumnTasksResponse)
 async def get_column_tasks(
         column_id: int = Query(title="ID da coluna.", description="ID da coluna que terá as tasks retornada."),
         board_id: int = Query(title="ID do quadro.", description="ID do quadro vinculado à coluna."),
@@ -30,3 +30,12 @@ async def get_column_tasks(
         tasks_services: ITasksServices = Depends(get_tasks_services)
 ) -> GetColumnTasksResponse:
     return await tasks_services.get_column_tasks(column_id, board_id, user_data)
+
+
+@tasks.delete("", response_model=DeleteTaskResponse)
+async def delete_task(
+        tasks_request: DeleteTaskRequest,
+        user_data: UserJWTData = Depends(decode_access_token),
+        tasks_services: ITasksServices = Depends(get_tasks_services)
+) -> DeleteTaskResponse:
+    return await tasks_services.delete_task(tasks_request, user_data)

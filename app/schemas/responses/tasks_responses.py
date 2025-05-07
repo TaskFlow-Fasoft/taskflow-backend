@@ -24,3 +24,9 @@ class CreateTaskResponse(BaseModel):
 
 class GetColumnTasksResponse(BaseModel):
     tasks: List[Task]
+
+
+class DeleteTaskResponse(BaseModel):
+    success: bool
+    task_id: int
+    message: str

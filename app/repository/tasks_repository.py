@@ -5,7 +5,7 @@ from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.interfaces.repository.tasks_repository_interface import ITasksRepository
-from app.schemas.requests.tasks_requests import CreateTaskRequest
+from app.schemas.requests.tasks_requests import CreateTaskRequest, DeleteTaskRequest
 
 
 class TasksRepository(ITasksRepository):
@@ -70,3 +70,43 @@ class TasksRepository(ITasksRepository):
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Ocorreu um erro ao consultar as tasks."
             )
+
+    async def check_task_existency(self, task_id: int, column_id: int) -> bool:
+        check_existency = await self.connection.execute(
+            statement=text(
+                "SELECT * FROM TASKS WHERE ID = :task_id AND COLUMN_ID = :column_id"
+            ),
+            params={
+                "task_id": task_id,
+                "column_id": column_id
+            }
+        )
+
+        return False if not check_existency.scalar() else True
+
+    async def delete_task(self, column_request: DeleteTaskRequest):
+        check_existency = await self.check_task_existency(column_request.task_id, column_request.column_id)
+
+        if not check_existency:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Tarefa não encontrada."
+            )
+        else:
+            try:
+                await self.connection.execute(
+                    statement=text(
+                        "DELETE FROM TASKS WHERE ID = :task_id AND COLUMN_ID = :column_id"
+                    ),
+                    params={
+                        "task_id": column_request.task_id,
+                        "column_id": column_request.column_id
+                    }
+                )
+
+                await self.connection.commit()
+            except Exception:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Ocorreu um erro ao deletar a tarefa."
+                )

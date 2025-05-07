@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod
 
 from app.schemas.requests.authentication_requests import UserJWTData
-from app.schemas.requests.tasks_requests import CreateTaskRequest
-from app.schemas.responses.tasks_responses import CreateTaskResponse, GetColumnTasksResponse
+from app.schemas.requests.tasks_requests import CreateTaskRequest, DeleteTaskRequest
+from app.schemas.responses.tasks_responses import CreateTaskResponse, GetColumnTasksResponse, DeleteTaskResponse
 
 
 class ITasksServices(ABC):
@@ -13,4 +13,8 @@ class ITasksServices(ABC):
 
     @abstractmethod
     async def get_column_tasks(self, column_id: int, board_id: int, user_data: UserJWTData) -> GetColumnTasksResponse:
+        raise NotImplementedError()
+
+    @abstractmethod
+    async def delete_task(self, tasks_request: DeleteTaskRequest, user_data: UserJWTData) -> DeleteTaskResponse:
         raise NotImplementedError()
