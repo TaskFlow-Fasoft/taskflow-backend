@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import List
 
-from app.schemas.requests.tasks_requests import CreateTaskRequest, DeleteTaskRequest
+from app.schemas.requests.tasks_requests import CreateTaskRequest, DeleteTaskRequest, UpdateTaskRequest
 
 
 class ITasksRepository(ABC):
@@ -19,5 +19,9 @@ class ITasksRepository(ABC):
         raise NotImplementedError()
 
     @abstractmethod
-    async def delete_task(self, column_request: DeleteTaskRequest):
+    async def delete_task(self, tasks_request: DeleteTaskRequest):
+        raise NotImplementedError()
+
+    @abstractmethod
+    async def update_task(self, tasks_request: UpdateTaskRequest):
         raise NotImplementedError()

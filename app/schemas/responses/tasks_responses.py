@@ -30,3 +30,9 @@ class DeleteTaskResponse(BaseModel):
     success: bool
     task_id: int
     message: str
+
+
+class UpdateTaskResponse(BaseModel):
+    success: bool
+    id: int
+    message: str

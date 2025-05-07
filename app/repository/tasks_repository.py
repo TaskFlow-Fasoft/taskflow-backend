@@ -5,7 +5,7 @@ from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.interfaces.repository.tasks_repository_interface import ITasksRepository
-from app.schemas.requests.tasks_requests import CreateTaskRequest, DeleteTaskRequest
+from app.schemas.requests.tasks_requests import CreateTaskRequest, DeleteTaskRequest, UpdateTaskRequest
 
 
 class TasksRepository(ITasksRepository):
@@ -84,8 +84,8 @@ class TasksRepository(ITasksRepository):
 
         return False if not check_existency.scalar() else True
 
-    async def delete_task(self, column_request: DeleteTaskRequest):
-        check_existency = await self.check_task_existency(column_request.task_id, column_request.column_id)
+    async def delete_task(self, tasks_request: DeleteTaskRequest):
+        check_existency = await self.check_task_existency(tasks_request.task_id, tasks_request.column_id)
 
         if not check_existency:
             raise HTTPException(
@@ -99,8 +99,8 @@ class TasksRepository(ITasksRepository):
                         "DELETE FROM TASKS WHERE ID = :task_id AND COLUMN_ID = :column_id"
                     ),
                     params={
-                        "task_id": column_request.task_id,
-                        "column_id": column_request.column_id
+                        "task_id": tasks_request.task_id,
+                        "column_id": tasks_request.column_id
                     }
                 )
 
@@ -109,4 +109,43 @@ class TasksRepository(ITasksRepository):
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
                     detail="Ocorreu um erro ao deletar a tarefa."
+                )
+
+    async def update_task(self, tasks_request: UpdateTaskRequest):
+        check_existency = await self.check_task_existency(tasks_request.task_id, tasks_request.column_id)
+
+        if not check_existency:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Coluna não encontrada."
+            )
+        else:
+            try:
+                await self.connection.execute(
+                    statement=text(
+                        """
+                        UPDATE
+                            TASKS
+                        SET TITLE = :title,
+                            DESCRIPTION = :description,
+                            COLUMN_ID = :column_id,
+                            DUE_DATE = :due_date
+                        WHERE ID = :task_id
+                        """
+                    ),
+                    params={
+                        "title": tasks_request.title,
+                        "description": tasks_request.description,
+                        "column_id": tasks_request.column_id,
+                        "due_date": tasks_request.due_date,
+                        "task_id": tasks_request.task_id
+                    }
+                )
+
+                await self.connection.commit()
+            except Exception as e:
+                print(e)
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Ocorreu um erro ao atualizar a tarefa."
                 )

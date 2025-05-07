@@ -5,8 +5,13 @@ from app.interfaces.repository.column_repository_interface import IColumnReposit
 from app.interfaces.repository.tasks_repository_interface import ITasksRepository
 from app.interfaces.services.tasks_services_interface import ITasksServices
 from app.schemas.requests.authentication_requests import UserJWTData
-from app.schemas.requests.tasks_requests import CreateTaskRequest, DeleteTaskRequest
-from app.schemas.responses.tasks_responses import CreateTaskResponse, GetColumnTasksResponse, DeleteTaskResponse
+from app.schemas.requests.tasks_requests import CreateTaskRequest, DeleteTaskRequest, UpdateTaskRequest
+from app.schemas.responses.tasks_responses import (
+    CreateTaskResponse,
+    GetColumnTasksResponse,
+    DeleteTaskResponse,
+    UpdateTaskResponse
+)
 
 
 class TasksServices(ITasksServices):
@@ -99,4 +104,32 @@ class TasksServices(ITasksServices):
             success=True,
             task_id=tasks_request.task_id,
             message="Tarefa deletada com sucesso."
+        )
+
+    async def update_task(self, tasks_request: UpdateTaskRequest, user_data: UserJWTData) -> UpdateTaskResponse:
+        board_exists = await self.board_repository.check_board_existency(tasks_request.board_id, user_data.user_id)
+
+        if not board_exists:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Quadro informado não encontrado."
+            )
+
+        column_exists = await self.column_repository.check_column_existency(
+            tasks_request.column_id,
+            tasks_request.board_id
+        )
+
+        if not column_exists:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Coluna não encontrada."
+            )
+
+        await self.tasks_repository.update_task(tasks_request)
+
+        return UpdateTaskResponse(
+            success=True,
+            id=tasks_request.task_id,
+            message="Tarefa atualizada com sucesso."
         )
