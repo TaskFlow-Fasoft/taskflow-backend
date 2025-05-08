@@ -1,5 +1,5 @@
 from datetime import datetime, date
-from typing import List
+from typing import List, Optional
 
 from pydantic import BaseModel
 
@@ -9,7 +9,7 @@ class Task(BaseModel):
     title: str
     description: str
     column_id: int
-    due_date: date
+    due_date: Optional[date]
     created_at: datetime
 
 
@@ -17,7 +17,7 @@ class CreateTaskResponse(BaseModel):
     id: int
     title: str
     description: str
-    due_date: date
+    due_date: Optional[date]
     created_at: datetime
     message: str
 

@@ -9,7 +9,7 @@ class CreateTaskRequest(BaseModel):
     column_id: int
     title: str
     description: str
-    due_date: date
+    due_date: Optional[date]
 
 
 class DeleteTaskRequest(BaseModel):
