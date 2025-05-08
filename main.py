@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from fastapi import FastAPI
-from starlette.middleware.cors import CORSMiddleware
+from fastapi.middleware.cors import CORSMiddleware
 
 from app.routes.authentication_routes import authentication
 from app.routes.board_routes import boards
@@ -12,7 +12,12 @@ from app.routes.tasks_routes import tasks
 
 app = FastAPI(
     title="API TaskFlow",
-    description="API responsável pelas requisições do TaskFlow."
+    description="API responsável pelas requisições do TaskFlow.",
+    openapi_url=None,
+    redoc_url=None,
+    swagger_ui_parameters={
+        "defaultModelsExpandDepth": -1
+    }
 )
 
 app.include_router(authentication)
