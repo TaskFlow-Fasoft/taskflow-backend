@@ -67,4 +67,5 @@ jobs:
       - name: Run unit tests
         run: |
           pip install pytest-asyncio
+          pip install httpx
           pytest --maxfail=3 --disable-warnings -rs
