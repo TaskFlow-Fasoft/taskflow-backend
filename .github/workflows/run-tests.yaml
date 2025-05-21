@@ -64,7 +64,7 @@ jobs:
       - name: Check Python version
         run: python --version
 
-      - name: Run tests
+      - name: Run unit tests
         run: |
           pip install pytest-asyncio
           pytest --maxfail=3 --disable-warnings -rs
