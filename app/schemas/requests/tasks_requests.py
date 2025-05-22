@@ -9,7 +9,7 @@ class CreateTaskRequest(BaseModel):
     column_id: int
     title: str
     description: str
-    due_date: Optional[date]
+    due_date: Optional[date] = None
 
 
 class DeleteTaskRequest(BaseModel):
@@ -20,9 +20,9 @@ class DeleteTaskRequest(BaseModel):
 
 class UpdateTaskRequest(BaseModel):
     board_id: int
-    column_id: int
     task_id: int
-    title: Optional[str]
-    description: Optional[str]
-    column_id: Optional[int]
-    due_date: Optional[date]
+    column_id: Optional[int] = None
+    old_column_id: Optional[int] = None
+    title: Optional[str] = None
+    description: Optional[str] = None
+    due_date: Optional[date] = None
