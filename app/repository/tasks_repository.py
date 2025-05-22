@@ -112,7 +112,7 @@ class TasksRepository(ITasksRepository):
                 )
 
     async def update_task(self, tasks_request: UpdateTaskRequest):
-        check_existency = await self.check_task_existency(tasks_request.task_id, tasks_request.column_id)
+        check_existency = await self.check_task_existency(tasks_request.task_id, tasks_request.old_column_id)
 
         if not check_existency:
             raise HTTPException(
@@ -143,8 +143,7 @@ class TasksRepository(ITasksRepository):
                 )
 
                 await self.connection.commit()
-            except Exception as e:
-                print(e)
+            except Exception:
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
                     detail="Ocorreu um erro ao atualizar a tarefa."
