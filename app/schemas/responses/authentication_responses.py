@@ -13,3 +13,4 @@ class UserRegistrationResponse(BaseModel):
 class UserLoginResponse(BaseModel):
     access_token: str
     expires_at: datetime
+    username: str
