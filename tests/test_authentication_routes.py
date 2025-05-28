@@ -65,6 +65,7 @@ def login_response():
     return UserLoginResponse(
         access_token="jwt-token-xyz",
         expires_at=datetime(2025, 5, 19, 9, 30, 0),
+        username="user1"
     )
 
 
@@ -106,7 +107,8 @@ def test_login_success(client, auth_service_mock, login_request, login_response)
     assert resp.status_code == 200
     assert resp.json() == {
         "access_token": login_response.access_token,
-        "expires_at": login_response.expires_at.isoformat()
+        "expires_at": login_response.expires_at.isoformat(),
+        "username": login_response.username
     }
     auth_service_mock.user_login.assert_called_once_with(login_request)
 

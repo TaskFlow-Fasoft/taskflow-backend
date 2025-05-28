@@ -40,6 +40,7 @@ def login_response():
     return UserLoginResponse(
         access_token="token-123",
         expires_at=datetime(2025, 5, 19, 0, 0, 0),
+        username="user1"
     )
 
 
