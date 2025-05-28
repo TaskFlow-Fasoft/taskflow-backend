@@ -75,7 +75,8 @@ class AuthenticationRepository(IAuthenticationRepository):
             text(
                 """
                 SELECT 
-                    ID
+                    ID,
+                    USERNAME
                 FROM USERS
                 WHERE EMAIL = :email
                 AND PASSWORD = :password
@@ -94,7 +95,8 @@ class AuthenticationRepository(IAuthenticationRepository):
 
             return UserLoginResponse(
                 access_token=create_access_token(user_data),
-                expires_at=datetime.now(tz=timezone("America/Sao_Paulo")) + timedelta(days=1)
+                expires_at=datetime.now(tz=timezone("America/Sao_Paulo")) + timedelta(days=1),
+                username=credentials.get("username")
             )
         else:
             raise HTTPException(

@@ -100,7 +100,7 @@ class ColumnRepository(IColumnRepository):
 
         if not columns:
             raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
+                status_code=status.HTTP_200_OK,
                 detail="Não há colunas cadastradas para o board_id informado."
             )
 
